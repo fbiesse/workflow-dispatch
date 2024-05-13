@@ -5,6 +5,10 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,14 +67,6 @@ jobs:
         workflow: echo-2.yaml
         token: ${{ secrets.PERSONAL_TOKEN }}
         wait-for-completion: false
-
-    # - name: Invoke echo 1 workflow by id
-    #   uses: ./
-    #   with:
-    #     workflow: '1854247'
-    #     token: ${{ secrets.PERSONAL_TOKEN }}
-    #     inputs: '{"message": "Mango jam"}'
-    #     wait-for-completion: false
 
   long-running-test:
     needs: [build]
@@ -201,15 +197,6 @@ jobs:
       with:
         expected: failure
         actual: ${{ steps.print-workflow-logs.outcome }}
-      # TODO: add assertions on logs
-
-    # - name: Invoke external workflow using this action
-    #   uses: ./
-    #   with:
-    #     workflow: Deploy To Kubernetes
-    #     repo: benc-uk/dapr-store
-    #     token: ${{ secrets.PERSONAL_TOKEN }}
-    #     ref: master
 
   parallel-runs-test:
     needs: [build]
